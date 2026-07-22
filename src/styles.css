@@ -254,6 +254,7 @@ dialog { color: inherit; }
 .consent-row input { width: 17px; height: 17px; margin: 2px 0 0; accent-color: var(--pine); }
 .consent-row a { color: var(--pine); text-decoration: underline; }
 .form-error, .admin-error { margin-top: 18px; padding: 12px 14px; border: 1px solid #d9a49d; border-radius: 5px; background: var(--red-soft); color: #873b32; display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.backend-unavailable { margin: 0 0 24px; line-height: 1.65; }
 .submit-button { width: 100%; margin-top: 22px; }
 .application-aside { position: sticky; top: 102px; padding: 28px; border: 1px solid var(--line); background: #ebeee8; }
 .application-aside ol { margin: 0; padding: 0; list-style: none; }

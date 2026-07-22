@@ -66,8 +66,8 @@ export function ApplyPage() {
     setSubmitting(true);
     try {
       await api.submitApplication({ ...form, source: getSource() });
-      await api.trackEvent({ name: "application_submit", path: "/apply", source: getSource(), sessionId: getSessionId() });
       setSuccess(true);
+      void api.trackEvent({ name: "application_submit", path: "/apply", source: getSource(), sessionId: getSessionId() }).catch(() => undefined);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (submissionError) {
       setError(submissionError instanceof Error ? submissionError.message : "提交失败，请稍后重试");
@@ -113,6 +113,7 @@ export function ApplyPage() {
       </section>
       <section className="application-section page-width">
         <form ref={formRef} className="application-form" onSubmit={submit} onFocus={markStarted} noValidate>
+          {!api.isSubmissionAvailable && <div className="form-error backend-unavailable" role="alert"><AlertCircle size={18} />线上报名暂未连接数据库，请先通过页面中的私人微信联系负责人。</div>}
           <div className="form-section-heading"><span>01</span><div><h2>基本信息</h2><p>用于确认你所在的校园和当前年级。</p></div></div>
           <div className="form-grid two-columns">
             <label className="field"><span>学校名称 <em>*</em></span><input list="school-options" value={form.school} onChange={(e) => setForm({ ...form, school: e.target.value })} placeholder="输入或选择山东省内高校" aria-invalid={Boolean(error && form.school.trim().length < 2)} maxLength={60} /><datalist id="school-options">{SHANDONG_SCHOOLS.map((school) => <option value={school} key={school} />)}</datalist></label>
@@ -138,7 +139,7 @@ export function ApplyPage() {
           <label className="honeypot" aria-hidden="true">网站<input tabIndex={-1} autoComplete="off" value={form.website} onChange={(e) => setForm({ ...form, website: e.target.value })} /></label>
           <label className="consent-row"><input type="checkbox" checked={form.privacyAccepted} onChange={(e) => setForm({ ...form, privacyAccepted: e.target.checked })} /><span>我已阅读并同意<Link to="/privacy" target="_blank">《隐私说明》</Link>，同意将以上信息用于代理报名沟通。</span></label>
           {error && <div className="form-error" role="alert"><AlertCircle size={18} />{error}</div>}
-          <button className="button primary submit-button" type="submit" disabled={submitting}>{submitting ? "正在提交…" : <>提交报名<ArrowRight size={18} /></>}</button>
+          <button className="button primary submit-button" type="submit" disabled={submitting || !api.isSubmissionAvailable}>{submitting ? "正在提交…" : <>提交报名<ArrowRight size={18} /></>}</button>
         </form>
         <aside className="application-aside">
           <p className="eyebrow">提交之后</p>

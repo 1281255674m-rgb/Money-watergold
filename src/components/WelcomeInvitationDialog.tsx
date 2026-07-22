@@ -1,9 +1,6 @@
 import { ArrowRight, MessageCircle, X } from "lucide-react";
 import { useEffect, useRef } from "react";
 
-export const INVITATION_STORAGE_KEY = "haohang-invitation-dismissed-at";
-const INVITATION_COOLDOWN = 7 * 24 * 60 * 60 * 1000;
-
 interface WelcomeInvitationDialogProps {
   enabled: boolean;
   title: string;
@@ -17,9 +14,6 @@ export function WelcomeInvitationDialog({ enabled, title, body, onChat, onExplor
 
   useEffect(() => {
     if (!enabled) return;
-    const dismissedAt = Number(localStorage.getItem(INVITATION_STORAGE_KEY) || 0);
-    if (Date.now() - dismissedAt < INVITATION_COOLDOWN) return;
-
     const timer = window.setTimeout(() => {
       const dialog = dialogRef.current;
       if (dialog && !dialog.open) dialog.showModal();
@@ -27,26 +21,23 @@ export function WelcomeInvitationDialog({ enabled, title, body, onChat, onExplor
     return () => window.clearTimeout(timer);
   }, [enabled]);
 
-  const rememberAndClose = () => {
-    localStorage.setItem(INVITATION_STORAGE_KEY, String(Date.now()));
+  const close = () => {
     dialogRef.current?.close();
   };
 
   const chooseChat = () => {
-    rememberAndClose();
+    close();
     onChat();
   };
 
   const chooseExplore = () => {
-    rememberAndClose();
+    close();
     onExplore();
   };
 
   return (
-    <dialog ref={dialogRef} className="invitation-dialog" onClose={() => {
-      localStorage.setItem(INVITATION_STORAGE_KEY, String(Date.now()));
-    }}>
-      <button className="icon-button invitation-close" type="button" onClick={rememberAndClose} aria-label="关闭邀请">
+    <dialog ref={dialogRef} className="invitation-dialog">
+      <button className="icon-button invitation-close" type="button" onClick={close} aria-label="关闭邀请">
         <X size={20} />
       </button>
       <div className="invitation-accent" />
