@@ -1,6 +1,7 @@
 import { localStore } from "./localStore";
 import type {
   AnalyticsEventInput,
+  ApiResponse,
   ApplicationFilters,
   ApplicationInput,
   ApplicationRecord,
@@ -9,88 +10,79 @@ import type {
   SiteContent,
 } from "../types";
 
-const envId = import.meta.env.VITE_CLOUDBASE_ENV_ID?.trim();
-const functionName = import.meta.env.VITE_CLOUDBASE_FUNCTION_NAME || "haohang-api";
-const localDemoEnabled = !envId && import.meta.env.DEV;
-const backendUnavailableMessage = "线上报名尚未连接云端数据库，请联系网站负责人";
+const configuredApiBase = import.meta.env.VITE_API_BASE_URL?.trim();
+const localDemoEnabled = import.meta.env.DEV && !configuredApiBase;
+const apiBase = (configuredApiBase || "/api").replace(/\/$/, "");
 
-interface CloudAuth {
-  hasLoginState(): unknown | null;
-  signInAnonymously(): Promise<{ error?: { message?: string } | null }>;
+function requestErrorMessage(status: number): string {
+  if (status === 404) return "网站接口尚未部署，请联系网站负责人";
+  if (status >= 500) return "服务暂时不可用，请稍后重试";
+  return "请求失败，请稍后重试";
 }
 
-interface CloudApp {
-  auth(options?: { persistence: "local" }): CloudAuth;
-  callFunction(options: { name: string; data: Record<string, unknown> }): Promise<{ result: unknown }>;
-  uploadFile(options: { cloudPath: string; filePath: string }): Promise<{ fileID: string }>;
-}
-
-const cloudAppPromise: Promise<CloudApp> | null = envId
-  ? import("@cloudbase/js-sdk").then(async (module) => {
-    const app = module.default.init({ env: envId }) as unknown as CloudApp;
-    const auth = app.auth({ persistence: "local" });
-    if (!auth.hasLoginState()) {
-      const response = await auth.signInAnonymously();
-      if (response.error) throw new Error(response.error.message || "云端匿名登录失败");
-    }
-    return app;
-  })
-  : null;
-
-function unavailable(): never {
-  throw new Error(backendUnavailableMessage);
-}
-
-async function callCloud<T>(action: string, payload: Record<string, unknown> = {}, token?: string): Promise<T> {
-  if (!cloudAppPromise) throw new Error("CloudBase 尚未配置");
-  const cloudApp = await cloudAppPromise;
-  const response = await cloudApp.callFunction({
-    name: functionName,
-    data: { action, payload, token },
-  });
-  const result = response.result as { ok: boolean; data?: T; error?: string };
-  if (!result?.ok) throw new Error(result?.error || "请求失败，请稍后重试");
+async function parseResponse<T>(response: Response): Promise<T> {
+  let result: ApiResponse<T> | null = null;
+  try {
+    result = await response.json() as ApiResponse<T>;
+  } catch {
+    // A missing Pages Function often returns an HTML error page.
+  }
+  if (!response.ok || !result?.ok) {
+    throw new Error(result?.error || requestErrorMessage(response.status));
+  }
   return result.data as T;
 }
 
+async function callApi<T>(action: string, payload: Record<string, unknown> = {}, token?: string): Promise<T> {
+  let response: Response;
+  try {
+    response = await fetch(apiBase, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ action, payload, token }),
+    });
+  } catch {
+    throw new Error("网络连接失败，请检查网络后重试");
+  }
+  return parseResponse<T>(response);
+}
+
 export const api = {
-  isCloud: Boolean(cloudAppPromise),
+  isCloud: !localDemoEnabled,
   isLocalDemo: localDemoEnabled,
-  isSubmissionAvailable: Boolean(cloudAppPromise) || localDemoEnabled,
+  isSubmissionAvailable: true,
 
   async getContent(): Promise<SiteContent> {
-    if (cloudAppPromise) return callCloud<SiteContent>("getContent");
     if (localDemoEnabled) return localStore.getContent();
-    return unavailable();
+    return callApi<SiteContent>("getContent");
   },
 
   async submitApplication(input: ApplicationInput): Promise<ApplicationRecord> {
-    if (cloudAppPromise) return callCloud<ApplicationRecord>("submitApplication", { input });
     if (localDemoEnabled) return localStore.submitApplication(input);
-    return unavailable();
+    return callApi<ApplicationRecord>("submitApplication", { input });
   },
 
   async trackEvent(event: AnalyticsEventInput): Promise<void> {
-    if (cloudAppPromise) await callCloud<void>("trackEvent", { event });
-    else if (localDemoEnabled) localStore.trackEvent(event);
+    if (localDemoEnabled) {
+      localStore.trackEvent(event);
+      return;
+    }
+    await callApi<null>("trackEvent", { event });
   },
 
   async adminLogin(password: string): Promise<string> {
-    if (cloudAppPromise) return callCloud<string>("adminLogin", { password });
     if (localDemoEnabled) return localStore.login(password);
-    return unavailable();
+    return callApi<string>("adminLogin", { password });
   },
 
   async getDashboard(token: string): Promise<DashboardStats> {
-    if (cloudAppPromise) return callCloud<DashboardStats>("getDashboard", {}, token);
     if (localDemoEnabled) return localStore.dashboard(token);
-    return unavailable();
+    return callApi<DashboardStats>("getDashboard", {}, token);
   },
 
   async listApplications(token: string, filters: ApplicationFilters): Promise<ApplicationRecord[]> {
-    if (cloudAppPromise) return callCloud<ApplicationRecord[]>("listApplications", { filters }, token);
     if (localDemoEnabled) return localStore.listApplications(token, filters);
-    return unavailable();
+    return callApi<ApplicationRecord[]>("listApplications", { filters }, token);
   },
 
   async updateApplication(
@@ -98,32 +90,30 @@ export const api = {
     id: string,
     changes: { status?: ApplicationStatus; adminNotes?: string },
   ): Promise<ApplicationRecord> {
-    if (cloudAppPromise) return callCloud<ApplicationRecord>("updateApplication", { id, changes }, token);
     if (localDemoEnabled) return localStore.updateApplication(token, id, changes);
-    return unavailable();
+    return callApi<ApplicationRecord>("updateApplication", { id, changes }, token);
   },
 
   async deleteApplication(token: string, id: string): Promise<void> {
-    if (cloudAppPromise) await callCloud<void>("deleteApplication", { id }, token);
-    else if (localDemoEnabled) localStore.deleteApplication(token, id);
-    else unavailable();
+    if (localDemoEnabled) {
+      localStore.deleteApplication(token, id);
+      return;
+    }
+    await callApi<null>("deleteApplication", { id }, token);
   },
 
   async getAdminContent(token: string): Promise<SiteContent> {
-    if (cloudAppPromise) return callCloud<SiteContent>("getAdminContent", {}, token);
     if (localDemoEnabled) return localStore.getContent();
-    return unavailable();
+    return callApi<SiteContent>("getAdminContent", {}, token);
   },
 
   async saveContent(token: string, content: SiteContent): Promise<SiteContent> {
-    if (cloudAppPromise) return callCloud<SiteContent>("saveContent", { content }, token);
     if (localDemoEnabled) return localStore.saveContent(content);
-    return unavailable();
+    return callApi<SiteContent>("saveContent", { content }, token);
   },
 
   async uploadAsset(token: string, file: File, kind: "qr" | "image"): Promise<string> {
-    if (!cloudAppPromise) {
-      if (!localDemoEnabled) return unavailable();
+    if (localDemoEnabled) {
       localStore.verifyToken(token);
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -132,12 +122,21 @@ export const api = {
         reader.readAsDataURL(file);
       });
     }
-    const cloudApp = await cloudAppPromise;
-    await callCloud<void>("verifyAdmin", {}, token);
-    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "-");
-    const cloudPath = `site-assets/${kind}/${Date.now()}-${safeName}`;
-    // The browser SDK accepts File objects although its shared declaration uses a string path.
-    const result = await cloudApp.uploadFile({ cloudPath, filePath: file as unknown as string });
-    return result.fileID;
+
+    const query = new URLSearchParams({ kind, name: file.name });
+    let response: Response;
+    try {
+      response = await fetch(`${apiBase}/assets?${query.toString()}`, {
+        method: "POST",
+        headers: {
+          authorization: `Bearer ${token}`,
+          "content-type": file.type,
+        },
+        body: file,
+      });
+    } catch {
+      throw new Error("网络连接失败，请检查网络后重试");
+    }
+    return parseResponse<string>(response);
   },
 };

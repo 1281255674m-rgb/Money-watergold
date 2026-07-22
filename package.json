@@ -6,13 +6,15 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit -p tsconfig.app.json && vite build",
+    "check:functions": "tsc --noEmit -p tsconfig.functions.json",
     "preview": "vite preview",
     "test": "vitest run",
+    "admin:hash": "node scripts/hash-admin-password.mjs",
+    "cloudflare:secrets": "node scripts/generate-cloudflare-secrets.mjs",
     "test:watch": "vitest",
     "assets": "powershell -ExecutionPolicy Bypass -File scripts/generate-brand-assets.ps1"
   },
   "dependencies": {
-    "@cloudbase/js-sdk": "3.6.3",
     "lucide-react": "0.468.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",

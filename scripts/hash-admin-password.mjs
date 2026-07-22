@@ -1,4 +1,4 @@
-import { randomBytes, scryptSync } from "node:crypto";
+import { pbkdf2Sync, randomBytes } from "node:crypto";
 
 const password = process.argv[2];
 if (!password || password.length < 10) {
@@ -6,6 +6,7 @@ if (!password || password.length < 10) {
   process.exit(1);
 }
 
-const salt = randomBytes(16).toString("hex");
-const hash = scryptSync(password, salt, 64).toString("hex");
-console.log(`${salt}:${hash}`);
+const iterations = 210_000;
+const salt = randomBytes(16);
+const hash = pbkdf2Sync(password, salt, iterations, 32, "sha256");
+console.log(`pbkdf2-sha256:${iterations}:${salt.toString("base64")}:${hash.toString("base64")}`);

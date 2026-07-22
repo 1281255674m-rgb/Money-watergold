@@ -1,0 +1,7 @@
+# Copy to .dev.vars only when running Pages Functions locally.
+# Never commit real values.
+ADMIN_PASSWORD_HASH=pbkdf2-sha256:<iterations>:<salt-base64>:<hash-base64>
+ADMIN_SESSION_SECRET=<long-random-string>
+DATA_ENCRYPTION_KEY=<32-byte-base64-key>
+DATA_HASH_SECRET=<long-random-string>
+WECOM_WEBHOOK_URL=
