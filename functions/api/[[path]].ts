@@ -107,6 +107,10 @@ function base64UrlDecode(value: string): Uint8Array {
   const normalized = value.replace(/-/g, "+").replace(/_/g, "/");
   return base64ToBytes(normalized.padEnd(Math.ceil(normalized.length / 4) * 4, "="));
 }
+function hexToBytes(value: string): Uint8Array | null {
+  if (!/^[a-f0-9]{64}$/i.test(value)) return null;
+  return Uint8Array.from(value.match(/.{2}/g) || [], (pair) => Number.parseInt(pair, 16));
+}
 function constantTimeEqual(a: Uint8Array, b: Uint8Array): boolean {
   if (a.length !== b.length) return false;
   let difference = 0;
@@ -142,7 +146,14 @@ async function decryptText(env: Env, value: string): Promise<string> {
 }
 
 async function verifyPassword(env: Env, password: string): Promise<boolean> {
-  const [scheme, first, second, third] = requireSecret(env, "ADMIN_PASSWORD_HASH").split(":");
+  const configuredHash = requireSecret(env, "ADMIN_PASSWORD_HASH").trim().replace(/^([`'"])|([`'"])$/g, "");
+  const [scheme, first, second, third] = configuredHash.split(":");
+  if (scheme === "sha256-hex" && first && !second) {
+    const expected = hexToBytes(first);
+    if (!expected) return false;
+    const actual = new Uint8Array(await crypto.subtle.digest("SHA-256", encoder.encode(password)));
+    return constantTimeEqual(actual, expected);
+  }
   if (scheme === "sha256-salted" && first && second && !third) {
     const salt = base64ToBytes(first);
     const passwordBytes = encoder.encode(password);

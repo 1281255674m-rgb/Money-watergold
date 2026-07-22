@@ -72,7 +72,7 @@ npm run cloudflare:secrets
 
 | 机密名称 | 值 |
 | --- | --- |
-| `ADMIN_PASSWORD_HASH` | 密码摘要脚本输出的整行；使用适合强随机密码的加盐 SHA-256 格式 |
+| `ADMIN_PASSWORD_HASH` | 密码摘要脚本输出的整行；强随机密码使用低耗时 SHA-256 十六进制摘要 |
 | `ADMIN_SESSION_SECRET` | 随机密钥脚本输出的对应值 |
 | `DATA_ENCRYPTION_KEY` | 随机密钥脚本输出的对应值 |
 | `DATA_HASH_SECRET` | 随机密钥脚本输出的对应值 |
