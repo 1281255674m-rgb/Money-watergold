@@ -174,6 +174,17 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 
 /* Dialog */
 dialog { color: inherit; }
+.invitation-dialog { width: min(660px, calc(100% - 32px)); max-height: min(90svh, 820px); padding: 42px 44px 30px; border: 0; border-radius: 8px; background: #fbfcf9; box-shadow: 0 28px 80px rgba(8,25,19,.28); overflow: auto; }
+.invitation-dialog::backdrop { background: rgba(8,24,19,.66); backdrop-filter: blur(7px); }
+.invitation-close { position: absolute; top: 14px; right: 14px; }
+.invitation-accent { width: 46px; height: 3px; margin-bottom: 25px; background: var(--red); }
+.invitation-dialog .eyebrow { margin-bottom: 10px; }
+.invitation-dialog h2 { max-width: 540px; margin-bottom: 22px; font-size: 30px; line-height: 1.28; }
+.invitation-copy { padding-block: 20px; border-block: 1px solid var(--line); }
+.invitation-copy p { margin: 0 0 13px; color: #4d5853; font-size: 14px; line-height: 1.85; }
+.invitation-copy p:last-child { margin-bottom: 0; }
+.invitation-actions { margin-top: 24px; display: flex; gap: 10px; flex-wrap: wrap; }
+.invitation-signature { margin: 20px 0 0; color: #858e89; font-size: 11px; }
 .contact-dialog { width: min(680px, calc(100% - 32px)); max-height: min(92svh, 820px); padding: 36px; border: 0; border-radius: 8px; box-shadow: var(--shadow); overflow: auto; text-align: center; }
 .contact-dialog::backdrop, .application-detail-dialog::backdrop { background: rgba(9, 19, 15, 0.58); backdrop-filter: blur(5px); }
 .dialog-close { position: absolute; top: 14px; right: 14px; }
@@ -375,6 +386,15 @@ dialog { color: inherit; }
 .editor-section-head h2 { margin: 0 0 5px; font-size: 20px; }
 .editor-section-head p { margin: 0; color: var(--muted); font-size: 12px; }
 .editor-section > .field, .editor-section > .form-grid { margin-top: 18px; }
+.setting-toggle { width: fit-content; min-height: 52px; margin-top: 18px; display: grid; grid-template-columns: 34px 1fr; gap: 12px; align-items: center; cursor: pointer; }
+.setting-toggle input { appearance: none; position: relative; width: 34px; height: 20px; margin: 0; border: 1px solid #aeb8b2; border-radius: 20px; background: #dfe3df; transition: background .18s, border-color .18s; }
+.setting-toggle input::after { content: ""; position: absolute; left: 2px; top: 2px; width: 14px; height: 14px; border-radius: 50%; background: var(--white); box-shadow: 0 1px 3px rgba(0,0,0,.2); transition: transform .18s; }
+.setting-toggle input:checked { border-color: var(--pine); background: var(--pine); }
+.setting-toggle input:checked::after { transform: translateX(14px); }
+.setting-toggle span { display: flex; flex-direction: column; gap: 3px; }
+.setting-toggle strong { font-size: 13px; }
+.setting-toggle small { color: var(--muted); font-size: 11px; }
+.invitation-editor-textarea { min-height: 230px !important; }
 .qr-editor { display: grid; grid-template-columns: 190px 1fr; gap: 28px; align-items: center; }
 .contact-editor-grid { display: grid; gap: 26px; }
 .contact-editor-grid .qr-editor { padding-bottom: 26px; border-bottom: 1px solid var(--line); }
@@ -477,6 +497,12 @@ dialog { color: inherit; }
   .contact-channel-title h3 { font-size: 13px; }
   .contact-channel p { font-size: 10px; }
   .contact-dialog { width: calc(100% - 24px); padding: 30px 18px 22px; }
+  .invitation-dialog { width: calc(100% - 24px); max-height: calc(100svh - 28px); padding: 34px 20px 24px; }
+  .invitation-dialog h2 { padding-right: 16px; font-size: 24px; }
+  .invitation-copy { padding-block: 16px; }
+  .invitation-copy p { font-size: 13px; line-height: 1.75; }
+  .invitation-actions { display: grid; grid-template-columns: 1fr; }
+  .invitation-actions .button { width: 100%; }
   .contact-dialog h2 { padding-inline: 18px; font-size: 23px; }
   .contact-dialog .contact-channels, .contact-channels-success { grid-template-columns: 1fr; }
   .contact-channels-dialog .contact-channel, .contact-channels-success .contact-channel { width: min(300px, 100%); margin-inline: auto; padding: 16px; }

@@ -35,6 +35,9 @@ export interface SiteContent {
   heroDescription: string;
   recruitmentTitle: string;
   recruitmentDescription: string;
+  invitationEnabled: boolean;
+  invitationTitle: string;
+  invitationBody: string;
   services: ServiceItem[];
   rules: RuleItem[];
   faqs: FaqItem[];

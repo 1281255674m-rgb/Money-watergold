@@ -5,6 +5,10 @@ import { useSiteContent } from "../context/SiteContentContext";
 import { ContactDialog } from "./ContactDialog";
 import { Logo } from "./Logo";
 
+export interface PublicOutletContext {
+  openContact: () => void;
+}
+
 export function PublicLayout() {
   const { content } = useSiteContent();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -32,7 +36,7 @@ export function PublicLayout() {
         </div>
       </header>
 
-      <main><Outlet /></main>
+      <main><Outlet context={{ openContact: () => setContactOpen(true) } satisfies PublicOutletContext} /></main>
 
       <footer className="site-footer">
         <div className="footer-inner">

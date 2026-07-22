@@ -1,12 +1,15 @@
 import { ArrowRight, CheckCircle2, Compass, Link2, MessageCircle, ShieldCheck } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useOutletContext } from "react-router-dom";
 import { ContactChannels } from "../components/ContactChannels";
+import type { PublicOutletContext } from "../components/PublicLayout";
 import { SectionHeading } from "../components/SectionHeading";
 import { ServiceIcon } from "../components/ServiceIcon";
+import { WelcomeInvitationDialog } from "../components/WelcomeInvitationDialog";
 import { useSiteContent } from "../context/SiteContentContext";
 
 export function HomePage() {
   const { content } = useSiteContent();
+  const { openContact } = useOutletContext<PublicOutletContext>();
   const hasContact = Boolean(content.contactQrUrl || content.personalContactQrUrl);
   const verifiedMetrics = content.publicMetrics.filter((metric) => metric.verified && metric.value.trim());
 
@@ -97,7 +100,7 @@ export function HomePage() {
         </div>
       </section>
 
-      <section className="section recruitment-band">
+      <section className="section recruitment-band" id="campus-plan">
         <div className="page-width recruitment-layout">
           <div className="recruitment-copy reveal">
             <p className="eyebrow">校园代理计划</p>
@@ -178,6 +181,14 @@ export function HomePage() {
           <Link className="button light" to="/apply">申请成为校园代理<ArrowRight size={18} /></Link>
         </div>
       </section>
+
+      <WelcomeInvitationDialog
+        enabled={content.invitationEnabled}
+        title={content.invitationTitle}
+        body={content.invitationBody}
+        onChat={openContact}
+        onExplore={() => document.getElementById("campus-plan")?.scrollIntoView({ behavior: "smooth", block: "start" })}
+      />
 
     </>
   );
