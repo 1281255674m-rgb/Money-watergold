@@ -142,7 +142,20 @@ async function decryptText(env: Env, value: string): Promise<string> {
 }
 
 async function verifyPassword(env: Env, password: string): Promise<boolean> {
-  const [scheme, iterationText, saltText, expectedText] = requireSecret(env, "ADMIN_PASSWORD_HASH").split(":");
+  const [scheme, first, second, third] = requireSecret(env, "ADMIN_PASSWORD_HASH").split(":");
+  if (scheme === "sha256-salted" && first && second && !third) {
+    const salt = base64ToBytes(first);
+    const passwordBytes = encoder.encode(password);
+    const combined = new Uint8Array(salt.length + passwordBytes.length);
+    combined.set(salt);
+    combined.set(passwordBytes, salt.length);
+    const actual = new Uint8Array(await crypto.subtle.digest("SHA-256", combined));
+    return constantTimeEqual(actual, base64ToBytes(second));
+  }
+
+  const iterationText = first;
+  const saltText = second;
+  const expectedText = third;
   const iterations = Number(iterationText);
   if (scheme !== "pbkdf2-sha256" || !Number.isInteger(iterations) || iterations < 100000 || !saltText || !expectedText) return false;
   const material = await crypto.subtle.importKey("raw", encoder.encode(password), "PBKDF2", false, ["deriveBits"]);
