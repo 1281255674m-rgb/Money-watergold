@@ -4,6 +4,7 @@ import { WelcomeInvitationDialog } from "./WelcomeInvitationDialog";
 
 const props = {
   enabled: true,
+  brandName: "颢行科技",
   title: "一起把事情做成",
   body: "第一段。\n\n第二段。",
   onChat: vi.fn(),

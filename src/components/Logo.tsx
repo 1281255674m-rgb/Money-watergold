@@ -1,9 +1,33 @@
 import { Link } from "react-router-dom";
 
-export function Logo({ compact = false }: { compact?: boolean }) {
+interface LogoProps {
+  compact?: boolean;
+  brandName?: string;
+  brandTagline?: string;
+}
+
+export function Logo({
+  compact = false,
+  brandName = "颢行科技",
+  brandTagline = "HAOXING TECHNOLOGY",
+}: LogoProps) {
+  const displayName = brandName.trim() || "颢行科技";
+  const displayTagline = brandTagline.trim();
+
   return (
-    <Link className="brand-logo" to="/" aria-label="返回浩航科技首页">
-      <img src={compact ? "/logo-mark.svg" : "/logo-horizontal.svg"} alt="浩航科技" />
+    <Link
+      className={compact ? "brand-logo compact" : "brand-logo"}
+      to="/"
+      aria-label={`返回${displayName}首页`}
+      title={displayName}
+    >
+      <img src="/logo-mark.svg" alt="" aria-hidden="true" />
+      {!compact && (
+        <span className="brand-logo-copy">
+          <strong>{displayName}</strong>
+          {displayTagline && <small>{displayTagline}</small>}
+        </span>
+      )}
     </Link>
   );
 }

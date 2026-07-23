@@ -1,4 +1,4 @@
-import { defaultContent } from "../data/defaultContent";
+import { defaultContent, mergeSiteContent } from "../data/defaultContent";
 import type {
   AnalyticsEventInput,
   ApplicationFilters,
@@ -38,7 +38,7 @@ export const localStore = {
     const stored = readJson<Partial<SiteContent> | null>(CONTENT_KEY, null);
     if (!stored) return defaultContent;
 
-    const migrated = { ...defaultContent, ...stored };
+    const migrated = mergeSiteContent(stored);
     if (!("personalContactQrUrl" in stored)) {
       migrated.contactQrUrl = defaultContent.contactQrUrl;
       migrated.contactLabel = defaultContent.contactLabel;
@@ -50,7 +50,7 @@ export const localStore = {
   },
 
   saveContent(content: SiteContent): SiteContent {
-    const saved = { ...content, updatedAt: new Date().toISOString() };
+    const saved = { ...mergeSiteContent(content), updatedAt: new Date().toISOString() };
     writeJson(CONTENT_KEY, saved);
     return saved;
   },

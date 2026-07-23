@@ -26,7 +26,7 @@ export function AdminLayout() {
         <button className="admin-logout" type="button" onClick={logout}><LogOut size={18} />退出登录</button>
       </aside>
       <div className="admin-main">
-        <header className="admin-topbar"><button type="button" className="icon-button admin-menu-open" onClick={() => setMenuOpen(true)} aria-label="打开菜单"><Menu size={21} /></button><div><strong>浩航科技</strong><span>单管理员后台</span></div><a href="/" target="_blank" rel="noreferrer">查看网站</a></header>
+        <header className="admin-topbar"><button type="button" className="icon-button admin-menu-open" onClick={() => setMenuOpen(true)} aria-label="打开菜单"><Menu size={21} /></button><div><strong>颢行科技</strong><span>单管理员后台</span></div><a href="/" target="_blank" rel="noreferrer">查看网站</a></header>
         <div className="admin-page"><Outlet /></div>
       </div>
     </div>

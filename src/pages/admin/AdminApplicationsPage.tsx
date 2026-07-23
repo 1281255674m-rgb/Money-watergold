@@ -70,7 +70,7 @@ export function AdminApplicationsPage() {
     const worksheet = XLSX.utils.json_to_sheet(rows);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "校园代理报名");
-    XLSX.writeFile(workbook, `浩航科技-校园代理报名-${new Date().toISOString().slice(0, 10)}.xlsx`);
+    XLSX.writeFile(workbook, `颢行科技-校园代理报名-${new Date().toISOString().slice(0, 10)}.xlsx`);
   };
 
   return (

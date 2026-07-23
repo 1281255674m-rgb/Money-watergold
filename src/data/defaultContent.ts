@@ -1,15 +1,16 @@
 import type { SiteContent } from "../types";
 
 export const defaultContent: SiteContent = {
-  brandName: "浩航科技",
-  companyName: "济南浩航网络科技公司",
+  brandName: "颢行科技",
+  brandTagline: "HAOXING TECHNOLOGY",
+  companyName: "济南颢行网络科技公司",
   slogan: "同心共筑梦想，共创校园价值",
   heroEyebrow: "山东高校校园代理招募计划",
   heroDescription:
     "从身边一条真实需求开始，连接校园与可靠服务。我们正在山东寻找愿意观察、沟通、共创的学生代理。",
   recruitmentTitle: "你了解校园，我们认真承接",
   recruitmentDescription:
-    "不要求推销固定商品。发现同学的真实需求，介绍给浩航科技并通过微信完成初步对接，就是合作的开始。",
+    "不要求推销固定商品。发现同学的真实需求，介绍给颢行科技并通过微信完成初步对接，就是合作的开始。",
   invitationEnabled: true,
   invitationTitle: "想找的不是“代理”，是能一起把事情做成的人",
   invitationBody:
@@ -79,3 +80,49 @@ export const defaultContent: SiteContent = {
   personalContactLabel: "私人微信 · 茂实",
   updatedAt: new Date(0).toISOString(),
 };
+
+function migrateLegacyBrandText(value: string): string {
+  return value
+    .replaceAll("浩航科技", "颢行科技")
+    .replaceAll("浩航", "颢行")
+    .replaceAll("HAOHANG", "HAOXING");
+}
+
+export function mergeSiteContent(content?: Partial<SiteContent> | null): SiteContent {
+  const merged = { ...defaultContent, ...content };
+  return {
+    ...merged,
+    brandName: migrateLegacyBrandText(merged.brandName),
+    brandTagline: migrateLegacyBrandText(merged.brandTagline),
+    companyName: migrateLegacyBrandText(merged.companyName),
+    slogan: migrateLegacyBrandText(merged.slogan),
+    heroEyebrow: migrateLegacyBrandText(merged.heroEyebrow),
+    heroDescription: migrateLegacyBrandText(merged.heroDescription),
+    recruitmentTitle: migrateLegacyBrandText(merged.recruitmentTitle),
+    recruitmentDescription: migrateLegacyBrandText(merged.recruitmentDescription),
+    invitationTitle: migrateLegacyBrandText(merged.invitationTitle),
+    invitationBody: migrateLegacyBrandText(merged.invitationBody),
+    services: merged.services.map((service) => ({
+      ...service,
+      title: migrateLegacyBrandText(service.title),
+      shortTitle: migrateLegacyBrandText(service.shortTitle),
+      summary: migrateLegacyBrandText(service.summary),
+      details: service.details.map(migrateLegacyBrandText),
+    })),
+    rules: merged.rules.map((rule) => ({
+      title: migrateLegacyBrandText(rule.title),
+      description: migrateLegacyBrandText(rule.description),
+    })),
+    faqs: merged.faqs.map((faq) => ({
+      question: migrateLegacyBrandText(faq.question),
+      answer: migrateLegacyBrandText(faq.answer),
+    })),
+    publicMetrics: merged.publicMetrics.map((metric) => ({
+      ...metric,
+      label: migrateLegacyBrandText(metric.label),
+      value: migrateLegacyBrandText(metric.value),
+    })),
+    contactLabel: migrateLegacyBrandText(merged.contactLabel),
+    personalContactLabel: migrateLegacyBrandText(merged.personalContactLabel),
+  };
+}

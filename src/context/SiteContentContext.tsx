@@ -29,6 +29,14 @@ export function SiteContentProvider({ children }: { children: ReactNode }) {
     void refresh();
   }, []);
 
+  useEffect(() => {
+    const brandName = content.brandName.trim() || defaultContent.brandName;
+    document.title = `${brandName}｜山东校园代理招募`;
+    document
+      .querySelector('meta[name="description"]')
+      ?.setAttribute("content", `${brandName}面向山东高校，连接真实校园需求与可靠服务，招募愿意共创校园价值的学生代理。`);
+  }, [content.brandName]);
+
   const value = useMemo(() => ({ content, loading, refresh }), [content, loading]);
   return <SiteContentContext.Provider value={value}>{children}</SiteContentContext.Provider>;
 }

@@ -29,6 +29,7 @@ export interface PublicMetric {
 
 export interface SiteContent {
   brandName: string;
+  brandTagline: string;
   companyName: string;
   slogan: string;
   heroEyebrow: string;

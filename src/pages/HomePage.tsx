@@ -16,7 +16,7 @@ export function HomePage() {
   return (
     <>
       <section className="hero-section">
-        <img className="hero-image" src="/hero-campus.png" alt="校园建筑、学生与连接路径构成的浩航科技品牌场景" />
+        <img className="hero-image" src="/hero-campus.png" alt={`校园建筑、学生与连接路径构成的${content.brandName}品牌场景`} />
         <div className="hero-overlay" />
         <div className="hero-content page-width">
           <div className="hero-copy-column">
@@ -184,6 +184,7 @@ export function HomePage() {
 
       <WelcomeInvitationDialog
         enabled={content.invitationEnabled}
+        brandName={content.brandName}
         title={content.invitationTitle}
         body={content.invitationBody}
         onChat={openContact}

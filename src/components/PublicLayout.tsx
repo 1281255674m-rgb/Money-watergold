@@ -19,7 +19,7 @@ export function PublicLayout() {
     <div className="site-shell">
       <header className="site-header">
         <div className="header-inner">
-          <Logo />
+          <Logo brandName={content.brandName} brandTagline={content.brandTagline} />
           <nav className={menuOpen ? "site-nav is-open" : "site-nav"} aria-label="主导航">
             <NavLink to="/" onClick={() => setMenuOpen(false)}>首页</NavLink>
             <NavLink to="/services" onClick={() => setMenuOpen(false)}>服务方向</NavLink>
@@ -41,7 +41,7 @@ export function PublicLayout() {
       <footer className="site-footer">
         <div className="footer-inner">
           <div>
-            <Logo />
+            <Logo brandName={content.brandName} brandTagline={content.brandTagline} />
             <p>{content.slogan}</p>
           </div>
           <div className="footer-links">

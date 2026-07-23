@@ -29,7 +29,7 @@ export function AdminLoginPage() {
 
   return (
     <main className="admin-login-page">
-      <div className="admin-login-brand"><img src="/logo-horizontal-light.svg" alt="浩航科技" /><p>校园代理管理后台</p></div>
+      <div className="admin-login-brand"><img src="/logo-horizontal-light.svg" alt="颢行科技" /><p>校园代理管理后台</p></div>
       <form className="admin-login-form" onSubmit={submit}>
         <div className="login-icon"><LockKeyhole size={24} /></div>
         <h1>管理员登录</h1>

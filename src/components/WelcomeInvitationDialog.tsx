@@ -3,13 +3,14 @@ import { useEffect, useRef } from "react";
 
 interface WelcomeInvitationDialogProps {
   enabled: boolean;
+  brandName: string;
   title: string;
   body: string;
   onChat: () => void;
   onExplore: () => void;
 }
 
-export function WelcomeInvitationDialog({ enabled, title, body, onChat, onExplore }: WelcomeInvitationDialogProps) {
+export function WelcomeInvitationDialog({ enabled, brandName, title, body, onChat, onExplore }: WelcomeInvitationDialogProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
@@ -50,7 +51,7 @@ export function WelcomeInvitationDialog({ enabled, title, body, onChat, onExplor
         <button className="button primary" type="button" onClick={chooseChat}><MessageCircle size={18} />我想先聊聊</button>
         <button className="button secondary" type="button" onClick={chooseExplore}>查看合作方式<ArrowRight size={17} /></button>
       </div>
-      <p className="invitation-signature">浩航科技 · 山东高校校园合作计划</p>
+      <p className="invitation-signature">{brandName} · 山东高校校园合作计划</p>
     </dialog>
   );
 }

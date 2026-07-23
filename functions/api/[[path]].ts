@@ -1,4 +1,4 @@
-import { defaultContent } from "../../src/data/defaultContent";
+import { defaultContent, mergeSiteContent } from "../../src/data/defaultContent";
 import type { ApplicationFilters, ApplicationInput, ApplicationRecord, ApplicationStatus, DashboardStats, SiteContent } from "../../src/types";
 
 interface D1Result<T> { results?: T[] }
@@ -220,13 +220,13 @@ async function toApplicationRecord(env: Env, row: ApplicationRow): Promise<Appli
 async function readContent(env: Env): Promise<SiteContent> {
   const row = await requireDb(env).prepare("SELECT content_json FROM site_content WHERE id = ?").bind("published").first<{ content_json: string }>();
   if (!row) return defaultContent;
-  try { return { ...defaultContent, ...(JSON.parse(row.content_json) as Partial<SiteContent>) }; }
+  try { return mergeSiteContent(JSON.parse(row.content_json) as Partial<SiteContent>); }
   catch { return defaultContent; }
 }
 async function saveContent(env: Env, input: unknown): Promise<SiteContent> {
   const content = input as Partial<SiteContent> | null;
   if (!content || !Array.isArray(content.services) || !Array.isArray(content.rules) || !Array.isArray(content.faqs)) throw new Error("参数不完整");
-  const saved = { ...defaultContent, ...content, updatedAt: new Date().toISOString() };
+  const saved = { ...mergeSiteContent(content), updatedAt: new Date().toISOString() };
   await requireDb(env).prepare("INSERT INTO site_content (id, content_json, updated_at) VALUES (?, ?, ?) ON CONFLICT(id) DO UPDATE SET content_json = excluded.content_json, updated_at = excluded.updated_at")
     .bind("published", JSON.stringify(saved), saved.updatedAt).run();
   return saved;
